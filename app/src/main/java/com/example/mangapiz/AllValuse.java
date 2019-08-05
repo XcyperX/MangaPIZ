@@ -7,6 +7,7 @@ import java.util.List;
 
 public class AllValuse extends ViewModel {
     public int hight = 0;
+    public int width = 0;
     public int spinner1 = 0;
     public int spinner2 = 0;
     public List<String> Chapter_name = new ArrayList<>();

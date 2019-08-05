@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<HashMap<String, String>> contactList;
     ArrayList<HashMap<String, String>> contactList_2;
     ArrayList<List<String>> LINK = new ArrayList();
-    public final AllValuse mViewModel = ViewModelProviders.of(this).get(AllValuse.class);
+    public List<String> Chapter = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +68,19 @@ public class MainActivity extends AppCompatActivity {
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
-            final int width = size.x;
+            mViewModel.width = size.x;
             mViewModel.hight = size.y;
-            params.height = mViewModel.hight;
-            imageView.setLayoutParams(params);
+//            params.height = mViewModel.hight;
+//            imageView.setLayoutParams(params);
         }
 
-
+//        if (Chapter.isEmpty()) {
         new BookName().execute();
+        mViewModel.Chapter = Chapter;
+//        }
+
+
+
         spinner.setSelection(mViewModel.spinner1);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -223,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
+            
             super.onPreExecute();
             // Showing progress dialog
             pDialog = new ProgressDialog(MainActivity.this);
@@ -234,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... arg0) {
+
             HttpHandler sh = new HttpHandler();
 
             // Making a request to url and getting response
@@ -295,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void result) {
+
             super.onPostExecute(result);
             // Dismiss the progress dialog
             if (pDialog.isShowing())
@@ -306,16 +314,16 @@ public class MainActivity extends AppCompatActivity {
             spinner2 = (Spinner) findViewById(R.id.spinner2);
             spinner3 = (Spinner) findViewById(R.id.spinner3);
 
-            List<String> Chapter = new ArrayList<>();
+//            List<String> Chapter = new ArrayList<>();
             for (int i = 0; i < contactList.size(); i++){
                 String name = contactList.get(i).get("name");
                 System.out.println(name);
                 Chapter.add(name);
             }
-
             ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MainActivity.this,
                     android.R.layout.simple_spinner_dropdown_item, Chapter);
             spinner.setAdapter(arrayAdapter);
+
 //            show_items();
         }
 
@@ -324,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
     public void OpenImage(final List<String> link){
         spinner3 = (Spinner) findViewById(R.id.spinner3);
         imageView = (ImageView) findViewById(R.id.Photo);
-//        final AllValuse mViewModel = ViewModelProviders.of(this).get(AllValuse.class);
+        final AllValuse mViewModel = ViewModelProviders.of(this).get(AllValuse.class);
 
         spinner3.setSelection(mViewModel.spinner2);
         spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -332,7 +340,12 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String url = link.get(parent.getSelectedItemPosition());
                 mViewModel.spinner2 = parent.getSelectedItemPosition();
-                Picasso.get().load(url).placeholder(R.drawable.loading).resize(0, mViewModel.hight).into(imageView);
+                Picasso.get()
+                        .load(url)
+                        .placeholder(R.drawable.loading)
+                        .error(R.drawable.ic_highlight_off_black_24dp)
+                        .resize(mViewModel.width, 0)
+                        .into(imageView);
                 System.out.println(url);
             }
 
