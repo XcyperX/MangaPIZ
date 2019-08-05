@@ -1,6 +1,7 @@
 package com.example.mangapiz;
 
 import android.app.ProgressDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,19 +50,37 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<HashMap<String, String>> contactList;
     ArrayList<HashMap<String, String>> contactList_2;
     ArrayList<List<String>> LINK = new ArrayList();
+    public final AllValuse mViewModel = ViewModelProviders.of(this).get(AllValuse.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         spinner = (Spinner) findViewById(R.id.spinner);
+        imageView = (ImageView) findViewById(R.id.Photo);
         contactList = new ArrayList<>();
         contactList_2 = new ArrayList<>();
-        new BookName().execute();
 
+        final AllValuse mViewModel = ViewModelProviders.of(this).get(AllValuse.class);
+
+        if (mViewModel.hight == 0) {
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) imageView.getLayoutParams();
+            Display display = getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            final int width = size.x;
+            mViewModel.hight = size.y;
+            params.height = mViewModel.hight;
+            imageView.setLayoutParams(params);
+        }
+
+
+        new BookName().execute();
+        spinner.setSelection(mViewModel.spinner1);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mViewModel.spinner1 = parent.getSelectedItemPosition();
                 contactList_2.clear();
                 new GetContacts().execute(parent.getSelectedItem().toString());
                 System.out.println(parent.getSelectedItem().toString());
@@ -175,8 +194,6 @@ public class MainActivity extends AppCompatActivity {
             List<String> Chapter_name = new ArrayList<>();
             List<String> number = new ArrayList<>();
 
-            int x = Integer.parseInt(contactList_2.get(0).get("src"));
-
             for (int i = 0; i < contactList_2.size(); i++){
                 String name = contactList_2.get(i).get("chapter_name");
                 Chapter_name.add(name);
@@ -289,8 +306,6 @@ public class MainActivity extends AppCompatActivity {
             spinner2 = (Spinner) findViewById(R.id.spinner2);
             spinner3 = (Spinner) findViewById(R.id.spinner3);
 
-
-
             List<String> Chapter = new ArrayList<>();
             for (int i = 0; i < contactList.size(); i++){
                 String name = contactList.get(i).get("name");
@@ -309,21 +324,15 @@ public class MainActivity extends AppCompatActivity {
     public void OpenImage(final List<String> link){
         spinner3 = (Spinner) findViewById(R.id.spinner3);
         imageView = (ImageView) findViewById(R.id.Photo);
+//        final AllValuse mViewModel = ViewModelProviders.of(this).get(AllValuse.class);
 
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) imageView.getLayoutParams();
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        final int width = size.x;
-        final int height = size.y;
-        params.height = height;
-        imageView.setLayoutParams(params);
-
+        spinner3.setSelection(mViewModel.spinner2);
         spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String url = link.get(parent.getSelectedItemPosition());
-                Picasso.get().load(url).placeholder(R.drawable.loading).resize(0, height).into(imageView);
+                mViewModel.spinner2 = parent.getSelectedItemPosition();
+                Picasso.get().load(url).placeholder(R.drawable.loading).resize(0, mViewModel.hight).into(imageView);
                 System.out.println(url);
             }
 
